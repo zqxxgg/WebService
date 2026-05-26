@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор суми</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; text-align: center; }
+        input, button { padding: 10px; margin: 5px; font-size: 16px; }
+        #result { margin-top: 20px; font-weight: bold; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Калькулятор суми</h1>
+    <div>
+        <label for="numberA">Перше число (a):</label>
+        <input type="number" id="numberA" placeholder="наприклад, 5" required>
+    </div>
+    <div>
+        <label for="numberB">Друге число (b):</label>
+        <input type="number" id="numberB" placeholder="наприклад, 7" required>
+    </div>
+    <button onclick="calculateSum()">Обчислити суму</button>
+    <div id="result"></div>
+
+    <script>
+        const API_URL = 'https://sum-server.onrender.com';   // ← замінити на свій URL після деплою
+
+        async function calculateSum() {
+            const a = document.getElementById('numberA').value;
+            const b = document.getElementById('numberB').value;
+            const resultDiv = document.getElementById('result');
+
+            if (a === '' || b === '') {
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'Будь ласка, введіть обидва числа';
+                return;
+            }
+
+            try {
+                const url = `${API_URL}/sum?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.className = '';
+                    resultDiv.textContent = `Сума ${data.a} + ${data.b} = ${data.sum}`;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.textContent = data.error || 'Помилка сервера';
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'Не вдалося підключитися до сервера';
+            }
+        }
+    </script>
+</body>
+</html>
